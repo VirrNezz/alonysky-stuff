@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>✘ Alony_Sky ✘ — Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+  <style>
+    /* ===== CSS VARIABLES ===== */
+    :root {
+      --bg-dark: #0a0a0f;
+      --bg-mid: #10101a;
+      --purple: #7b4fa6;
+      --purple-light: #a87fd4;
+      --gray: #8a8a9a;
+      --gray-light: #c0c0d0;
+      --gold: #c9a227;
+      --gold-light: #f0cc60;
+      --text-main: #d8d0e8;
+      --text-dim: #8a8098;
+      --border-color: #6a5a8a;
+      --sniper-color: #9a7ab8;
+      --glitch-1: #a855f7;
+      --glitch-2: #06b6d4;
+      --danger: #ff3c3c;
+    }
+
+    /* ===== RESET ===== */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Special Elite', 'Courier New', monospace;
+      background: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ===== LOADING SCREEN ===== */
+    #loading-screen {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+    }
+
+    #loading-screen.hidden {
+      animation: fadeOut 0.8s forwards;
+    }
+
+    @keyframes fadeOut {
+      to { opacity: 0; pointer-events: none; }
+    }
+
+    .load-profile-wrap {
+      position: relative;
+      width: 130px;
+      height: 130px;
+    }
+
+    .load-profile-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      border-top-color: var(--purple);
+      border-left-color: var(--gold);
+      animation: spinRing 1.2s linear infinite;
+    }
+
+    .load-profile-ring.ring2 {
+      inset: 6px;
+      border-top-color: var(--gold);
+      border-right-color: var(--purple-light);
+      animation-duration: 1.8s;
+      animation-direction: reverse;
+    }
+
+    @keyframes spinRing { to { transform: rotate(360deg); } }
+
+    .load-profile-img {
+      position: absolute;
+      inset: 14px;
+      border-radius: 50%;
+      object-fit: cover;
+      width: calc(100% - 28px);
+      height: calc(100% - 28px);
+      opacity: 0.4;
+      filter: grayscale(80%);
+      transition: all 1s ease;
+    }
+
+    .load-profile-img.active {
+      opacity: 1;
+      filter: grayscale(0%) drop-shadow(0 0 12px var(--purple));
+    }
+
+    .load-text {
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--gray-light);
+      font-size: 0.75rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink { 50% { opacity: 0; } }
+
+    .load-bar-wrap {
+      width: min(320px, 80vw);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .load-bar-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--purple-light);
+      letter-spacing: 3px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .load-bar-track {
+      width: 100%;
+      height: 4px;
+      background: #1a1a2e;
+      position: relative;
+      border: 1px solid #2a2a4a;
+    }
+
+    .load-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--purple), var(--gold));
+      box-shadow: 0 0 8px var(--purple);
+      transition: width 0.1s linear;
+    }
+
+    /* sniper crosshair corners */
+    .load-bar-track::before,
+    .load-bar-track::after {
+      content: '';
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-color: var(--gold);
+      border-style: solid;
+    }
+    .load-bar-track::before { top: -3px; left: -3px; border-width: 2px 0 0 2px; }
+    .load-bar-track::after  { bottom: -3px; right: -3px; border-width: 0 2px 2px 0; }
+
+    /* ===== BACKGROUND ===== */
+    #main-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background:
+        radial-gradient(ellipse at 30% 20%, rgba(90, 40, 130, 0.18) 0%, transparent 60%),
+        radial-gradient(ellipse at 75% 80%, rgba(60, 30, 90, 0.15) 0%, transparent 60%),
+        linear-gradient(170deg, #07070f 0%, #0e0e1c 40%, #080810 100%);
+      overflow: hidden;
+    }
+
+    /* ruin texture via SVG noise */
+    #main-bg::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='512' height='512' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: 0.35;
+      pointer-events: none;
+    }
+
+    /* vertical scan lines */
+    #main-bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.08) 2px,
+        rgba(0,0,0,0.08) 4px
+      );
+      pointer-events: none;
+    }
+
+    /* floating ruin cracks */
+    .bg-crack {
+      position: absolute;
+      background: linear-gradient(180deg, transparent, rgba(100,80,150,0.06), transparent);
+      width: 1px;
+      animation: crackFlicker 6s ease-in-out infinite;
+    }
+
+    @keyframes crackFlicker {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.8; }
+    }
+
+    /* ===== MAIN WRAPPER ===== */
+    #page {
+      position: relative;
+      z-index: 1;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 0 16px 60px;
+      min-height: 100vh;
+    }
+
+    @media (min-width: 768px) {
+      #page { max-width: 640px; padding: 0 32px 80px; }
+    }
+
+    @media (min-width: 1200px) {
+      #page { max-width: 780px; }
+    }
+
+    /* ===== PROFILE SECTION ===== */
+    #profile-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 52px;
+      gap: 0;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.9s ease;
+    }
+
+    #profile-section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* profile image with sniper reticle */
+    .profile-frame {
+      position: relative;
+      width: 140px;
+      height: 140px;
+      margin-bottom: 6px;
+    }
+
+    @media (min-width: 768px) {
+      .profile-frame { width: 170px; height: 170px; }
+    }
+
+    .profile-frame img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+      filter: drop-shadow(0 0 18px rgba(123,79,166,0.7));
+      animation: profileFloat 4s ease-in-out infinite;
+    }
+
+    @keyframes profileFloat {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+    }
+
+    /* sniper reticle rings */
+    .reticle {
+      position: absolute;
+      inset: -10px;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .reticle::before,
+    .reticle::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 1px solid;
+      animation: reticlePulse 3s ease-in-out infinite;
+    }
+
+    .reticle::before {
+      border-color: rgba(123,79,166,0.5);
+    }
+
+    .reticle::after {
+      inset: -8px;
+      border-color: rgba(201,162,39,0.25);
+      animation-delay: 0.5s;
+      animation-duration: 4s;
+    }
+
+    @keyframes reticlePulse {
+      0%, 100% { opacity: 0.4; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.03); }
+    }
+
+    /* crosshair lines */
+    .crosshair-line {
+      position: absolute;
+      background: rgba(168,127,212,0.35);
+    }
+    .crosshair-h { width: 30px; height: 1px; top: 50%; transform: translateY(-50%); }
+    .crosshair-h.left { left: -34px; }
+    .crosshair-h.right { right: -34px; }
+    .crosshair-v { width: 1px; height: 30px; left: 50%; transform: translateX(-50%); }
+    .crosshair-v.top-v { top: -34px; }
+    .crosshair-v.bot-v { bottom: -34px; }
+
+    /* ===== NAME + GLITCH ===== */
+    .profile-name {
+      font-family: 'Special Elite', monospace;
+      font-size: clamp(1.4rem, 5vw, 2rem);
+      color: var(--text-main);
+      text-align: center;
+      margin: 18px 0 16px;
+      position: relative;
+      letter-spacing: 3px;
+    }
+
+    .profile-name::before,
+    .profile-name::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      overflow: hidden;
+    }
+
+    .profile-name::before {
+      color: var(--glitch-1);
+      animation: glitch1 3.5s infinite steps(1);
+      clip-path: polygon(0 20%, 100% 20%, 100% 40%, 0 40%);
+    }
+
+    .profile-name::after {
+      color: var(--glitch-2);
+      animation: glitch2 3.5s infinite steps(1);
+      clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%);
+    }
+
+    @keyframes glitch1 {
+      0%,90%,100% { transform: translate(0); opacity: 0; }
+      91% { transform: translate(-3px, 1px); opacity: 0.8; }
+      93% { transform: translate(3px, -1px); opacity: 0.8; }
+      95% { transform: translate(-2px, 2px); opacity: 0.8; }
+      97% { transform: translate(0); opacity: 0; }
+    }
+
+    @keyframes glitch2 {
+      0%,88%,100% { transform: translate(0); opacity: 0; }
+      89% { transform: translate(4px, -2px); opacity: 0.7; }
+      91% { transform: translate(-4px, 1px); opacity: 0.7; }
+      93% { transform: translate(2px, -1px); opacity: 0.7; }
+      95% { transform: translate(0); opacity: 0; }
+    }
+
+    /* ===== BIO TEXT ===== */
+    .profile-bio {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: clamp(0.72rem, 2.5vw, 0.85rem);
+      color: var(--text-dim);
+      text-align: center;
+      line-height: 1.75;
+      max-width: 420px;
+      padding: 0 8px;
+    }
+
+    .profile-bio p + p { margin-top: 14px; }
+
+    /* ===== DIVIDER ===== */
+    .divider {
+      width: 100%;
+      height: 1px;
+      margin: 28px 0;
+      background: linear-gradient(90deg, transparent, var(--border-color), var(--gold), var(--border-color), transparent);
+      position: relative;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '◆';
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gold);
+      font-size: 0.55rem;
+    }
+    .divider::before { left: 28%; }
+    .divider::after { right: 28%; }
+
+    /* ===== LINKS SECTION ===== */
+    #links-section {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .link-row-double {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    /* sniper border card */
+    .link-card {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      background: rgba(15, 12, 25, 0.75);
+      text-decoration: none;
+      color: var(--text-main);
+      backdrop-filter: blur(4px);
+      transition: all 0.3s ease;
+      overflow: hidden;
+    }
+
+    .link-card::before,
+    .link-card::after,
+    .link-card .corner-tl,
+    .link-card .corner-br {
+      content: '';
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-color: var(--sniper-color);
+      border-style: solid;
+      transition: border-color 0.4s ease;
+    }
+
+    .link-card::before { top: 0; left: 0; border-width: 2px 0 0 2px; }
+    .link-card::after  { bottom: 0; right: 0; border-width: 0 2px 2px 0; }
+    .link-card .corner-tl { top: 0; right: 0; border-width: 2px 2px 0 0; }
+    .link-card .corner-br { bottom: 0; left: 0; border-width: 0 0 2px 2px; }
+
+    /* animated color shift */
+    @keyframes borderShift {
+      0%   { --sniper-color: #8a8a9a; }
+      25%  { --sniper-color: #9a7ab8; }
+      50%  { --sniper-color: #7b5fa0; }
+      75%  { --sniper-color: #a0a0b8; }
+      100% { --sniper-color: #8a8a9a; }
+    }
+
+    .link-card { animation: borderShift 8s linear infinite; }
+
+    .link-card:hover {
+      background: rgba(123,79,166,0.18);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(123,79,166,0.3), inset 0 0 30px rgba(123,79,166,0.06);
+    }
+
+    .link-card:hover::before,
+    .link-card:hover::after,
+    .link-card:hover .corner-tl,
+    .link-card:hover .corner-br {
+      border-color: var(--gold);
+    }
+
+    /* scan line effect on hover */
+    .link-card .scan-line {
+      position: absolute;
+      left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(168,127,212,0.4), transparent);
+      top: -2px;
+      transition: none;
+    }
+
+    .link-card:hover .scan-line {
+      animation: scanDown 0.6s linear;
+    }
+
+    @keyframes scanDown {
+      from { top: 0%; }
+      to { top: 100%; }
+    }
+
+    .link-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 1.1rem;
+    }
+
+    .link-icon svg { width: 22px; height: 22px; }
+
+    .discord-icon  { background: rgba(88,101,242,0.2); border: 1px solid rgba(88,101,242,0.4); }
+    .tiktok-icon   { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); }
+    .youtube-icon  { background: rgba(255,0,0,0.15); border: 1px solid rgba(255,0,0,0.3); }
+    .db-icon       { background: rgba(201,162,39,0.15); border: 1px solid rgba(201,162,39,0.4); }
+
+    .link-info {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .link-name {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-main);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .link-handle {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* double card = smaller text */
+    .link-row-double .link-card { padding: 12px 12px; gap: 10px; }
+    .link-row-double .link-name { font-size: 0.78rem; }
+    .link-row-double .link-handle { font-size: 0.6rem; }
+    .link-row-double .link-icon { width: 32px; height: 32px; }
+    .link-row-double .link-icon svg { width: 18px; height: 18px; }
+
+    /* DATABASE special card */
+    .db-card {
+      border: none;
+      background: rgba(8,6,16,0.85);
+      justify-content: center;
+      text-align: center;
+    }
+
+    .db-card .link-info { align-items: center; }
+
+    .db-card .link-name {
+      color: var(--gold-light);
+      font-size: 0.95rem;
+      letter-spacing: 4px;
+    }
+
+    .db-card .link-handle {
+      color: var(--gold);
+      letter-spacing: 2px;
+      font-size: 0.62rem;
+    }
+
+    .db-card:hover {
+      background: rgba(201,162,39,0.08);
+      box-shadow: 0 0 30px rgba(201,162,39,0.2), inset 0 0 20px rgba(201,162,39,0.05);
+    }
+
+    .db-card:hover::before,
+    .db-card:hover::after,
+    .db-card:hover .corner-tl,
+    .db-card:hover .corner-br {
+      border-color: var(--gold-light);
+    }
+
+    /* static flicker for db card */
+    .db-card .link-name::after {
+      content: '_';
+      animation: blink 0.8s step-end infinite;
+      color: var(--gold);
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      margin-top: 48px;
+      text-align: center;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      opacity: 0.5;
+      position: relative;
+    }
+
+    footer a {
+      color: var(--danger);
+      text-decoration: none;
+      transition: color 0.3s, text-shadow 0.3s;
+    }
+
+    footer a:hover {
+      color: #ff6060;
+      text-shadow: 0 0 8px rgba(255,60,60,0.7);
+    }
+
+    /* ===== RESPONSIVE MOBILE TWEAKS ===== */
+    @media (max-width: 360px) {
+      .profile-frame { width: 115px; height: 115px; }
+      .link-card { padding: 11px 10px; gap: 8px; }
+      .link-row-double .link-name { font-size: 0.7rem; }
+    }
+
+    /* ===== SCROLL REVEAL ===== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+<!-- BACKGROUND -->
+<div id="main-bg">
+  <div class="bg-crack" style="left:15%;height:60vh;top:10vh;"></div>
+  <div class="bg-crack" style="left:50%;height:80vh;top:5vh;animation-delay:1.5s;"></div>
+  <div class="bg-crack" style="left:78%;height:50vh;top:20vh;animation-delay:3s;"></div>
+  <div class="bg-crack" style="left:35%;height:40vh;top:40vh;animation-delay:2s;"></div>
+</div>
+
+<!-- LOADING SCREEN -->
+<div id="loading-screen">
+  <div class="load-profile-wrap">
+    <div class="load-profile-ring"></div>
+    <div class="load-profile-ring ring2"></div>
+    <img
+      id="load-img"
+      class="load-profile-img"
+      src="IMG-20260323-WA0018.png"
+      onerror="this.style.background='linear-gradient(135deg,#7b4fa6,#2d1b4e)'; this.removeAttribute('src')"
+      alt="AlonySky"
+    />
+  </div>
+
+  <div class="load-bar-wrap">
+    <div class="load-bar-label">
+      <span>INITIALIZING...</span>
+      <span id="load-pct">0%</span>
+    </div>
+    <div class="load-bar-track">
+      <div class="load-bar-fill" id="load-fill"></div>
+    </div>
+  </div>
+
+  <div class="load-text" id="load-status">CONNECTING TO DATABASE</div>
+</div>
+
+<!-- MAIN PAGE -->
+<div id="page" style="display:none;">
+
+  <!-- Profile -->
+  <section id="profile-section">
+
+    <div class="profile-frame">
+      <div class="reticle"></div>
+      <div class="crosshair-line crosshair-h left"></div>
+      <div class="crosshair-line crosshair-h right"></div>
+      <div class="crosshair-line crosshair-v top-v"></div>
+      <div class="crosshair-line crosshair-v bot-v"></div>
+      <!-- profile picture: user should replace src with their actual image URL -->
+      <img
+        src="IMG-20260322-WA0186.png"
+        onerror="this.style.background='linear-gradient(135deg,#7b4fa6,#2d1b4e)'"
+        alt="AlonySky the Dragon"
+        id="main-avatar"
+      />
+    </div>
+
+    <h1 class="profile-name" data-text="✘ Alony_Sky ✘">✘ Alony_Sky ✘</h1>
+
+    <div class="profile-bio">
+      <p>I'm AlonySky ||she/her|| an artist, animator, fursuiter, and fursuit maker. AlonySky the Dragon is my main OC and fursona.</p>
+      <p>I'm not much of an FPS gamer, but when I do play, I stick to snipers, though I'm honestly terrible with hand gun. Have a strong hobby for cars, especially Mustangs and classic muscle cars. and I have interest for anything fancy (gold, shiny, elegant things)</p>
+    </div>
+
+  </section>
+
+  <div class="divider reveal"></div>
+
+  <!-- Links -->
+  <section id="links-section">
+
+    <!-- Discord - full width -->
+    <a href="https://discord.gg/NrdFBMUE" target="_blank" rel="noopener" class="link-card reveal" style="transition-delay:0.1s">
+      <div class="corner-tl"></div>
+      <div class="corner-br"></div>
+      <div class="scan-line"></div>
+      <div class="link-icon discord-icon">
+        <svg viewBox="0 0 24 24" fill="currentColor" style="color:#7289da">
+          <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/>
+        </svg>
+      </div>
+      <div class="link-info">
+        <span class="link-name">Discord</span>
+        <span class="link-handle">discord.gg/NrdFBMUE</span>
+      </div>
+    </a>
+
+    <!-- TikTok + YouTube - side by side -->
+    <div class="link-row-double">
+
+      <a href="https://www.tiktok.com/@alonysky?_r=1&_t=ZS-94uE2ByF2db" target="_blank" rel="noopener" class="link-card reveal" style="transition-delay:0.2s">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="scan-line"></div>
+        <div class="link-icon tiktok-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor" style="color:#fff">
+            <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.34 6.34 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.34-6.34V8.69a8.18 8.18 0 0 0 4.79 1.53V6.77a4.85 4.85 0 0 1-1.03-.08z"/>
+          </svg>
+        </div>
+        <div class="link-info">
+          <span class="link-name">TikTok</span>
+          <span class="link-handle">@alonysky</span>
+        </div>
+      </a>
+
+      <a href="https://youtube.com/@alonysky?si=X8llaO96PN8V7Cae" target="_blank" rel="noopener" class="link-card reveal" style="transition-delay:0.3s">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+        <div class="scan-line"></div>
+        <div class="link-icon youtube-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor" style="color:#ff0000">
+            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+          </svg>
+        </div>
+        <div class="link-info">
+          <span class="link-name">YouTube</span>
+          <span class="link-handle">@alonysky</span>
+        </div>
+      </a>
+
+    </div>
+
+    <!-- ACCESS DATABASE - full width special -->
+    <a href="https://virrnezz.github.io/Alony-Portofolio/Alonysky-Database.html" target="_blank" rel="noopener" class="link-card db-card reveal" style="transition-delay:0.4s">
+      <div class="corner-tl"></div>
+      <div class="corner-br"></div>
+      <div class="scan-line"></div>
+      <div class="link-icon db-icon">
+        <svg viewBox="0 0 24 24" fill="currentColor" style="color:#c9a227">
+          <path d="M12 2C8.13 2 5 3.34 5 5v14c0 1.66 3.13 3 7 3s7-1.34 7-3V5c0-1.66-3.13-3-7-3zm0 2c3.31 0 5 .9 5 1s-1.69 1-5 1-5-.9-5-1 1.69-1 5-1zm5 14c0 .1-1.69 1-5 1s-5-.9-5-1v-2.23C8.61 17.53 10.26 18 12 18s3.39-.47 5-1.23V18zm0-4c0 .1-1.69 1-5 1s-5-.9-5-1v-2.23C8.61 13.53 10.26 14 12 14s3.39-.47 5-1.23V14zm0-4c0 .1-1.69 1-5 1s-5-.9-5-1V7.77C8.61 9.53 10.26 10 12 10s3.39-.47 5-1.23V10z"/>
+        </svg>
+      </div>
+      <div class="link-info">
+        <span class="link-name">[ ACCESS DATABASE ]</span>
+        <span class="link-handle">CLASSIFIED // TAP TO ENTER</span>
+      </div>
+    </a>
+
+  </section>
+
+  <!-- Footer -->
+  <footer class="reveal" style="transition-delay:0.5s">
+    <a href="https://virrnezz.github.io/Nesinezz-The-Owner-Of-Blackpaw-Teams/Portofolio.html" target="_blank" rel="noopener">
+      DataBase Has Been Hacked By Suness (BlackPaw Teams)
+    </a>
+  </footer>
+
+</div>
+
+<script>
+  // ===== LOADING ANIMATION =====
+  const fill    = document.getElementById('load-fill');
+  const pct     = document.getElementById('load-pct');
+  const status  = document.getElementById('load-status');
+  const loadImg = document.getElementById('load-img');
+  const screen  = document.getElementById('loading-screen');
+  const page    = document.getElementById('page');
+
+  const messages = [
+    'CONNECTING TO DATABASE',
+    'LOADING ASSETS',
+    'BYPASSING FIREWALL',
+    'INITIALIZING PORTFOLIO',
+    'ACCESS GRANTED'
+  ];
+
+  let progress = 0;
+
+  // sync main avatar src to load-img
+  const mainAv = document.getElementById('main-avatar');
+  // use same image
+  // loadImg.src = mainAv.src; // uncomment if you host a real image
+
+  const tick = setInterval(() => {
+    const step = Math.random() * 3 + 0.8;
+    progress = Math.min(progress + step, 100);
+
+    fill.style.width = progress + '%';
+    pct.textContent  = Math.floor(progress) + '%';
+
+    const msgIdx = Math.min(Math.floor(progress / 20), messages.length - 1);
+    status.textContent = messages[msgIdx];
+
+    if (progress >= 60) {
+      loadImg.classList.add('active');
+    }
+
+    if (progress >= 100) {
+      clearInterval(tick);
+      status.textContent = 'ACCESS GRANTED';
+
+      setTimeout(() => {
+        screen.classList.add('hidden');
+        page.style.display = 'block';
+
+        setTimeout(() => {
+          document.getElementById('profile-section').classList.add('visible');
+          observeReveal();
+        }, 200);
+      }, 700);
+    }
+  }, 60);
+
+  // ===== SCROLL REVEAL =====
+  function observeReveal() {
+    const els = document.querySelectorAll('.reveal');
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          obs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.15 });
+
+    els.forEach(el => obs.observe(el));
+  }
+
+  // ===== BORDER COLOR ANIMATION (CSS var trick fallback) =====
+  let hue = 260;
+  let dir  = 1;
+  setInterval(() => {
+    hue += dir * 0.4;
+    if (hue > 300 || hue < 220) dir *= -1;
+    const sat = 25 + Math.sin(Date.now() / 3000) * 10;
+    const lit = 45 + Math.sin(Date.now() / 5000) * 8;
+    document.documentElement.style.setProperty('--sniper-color', `hsl(${hue},${sat}%,${lit}%)`);
+  }, 50);
+
+  // ===== SCAN LINE on card hover (reinit on re-hover) =====
+  document.querySelectorAll('.link-card').forEach(card => {
+    card.addEventListener('mouseenter', () => {
+      const sl = card.querySelector('.scan-line');
+      sl.style.animation = 'none';
+      void sl.offsetWidth;
+      sl.style.animation = '';
+    });
+  });
+</script>
+</body>
+</html>

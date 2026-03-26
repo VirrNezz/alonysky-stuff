@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <title>💀 Alonysky's Database 💀</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Special+Elite&family=VT323&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --purple: #7b2fa6;
+      --purple-light: #a855f7;
+      --gray-light: #c0c0cc;
+      --bg: #07060f;
+      --green: #00ff41;
+      --danger: #ff2222;
+      --b1: #5a4a7a;
+      --b2: #9a7ab8;
+      --b3: #6a6a7a;
+    }
+
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Share Tech Mono', monospace;
+      background: var(--bg);
+      color: var(--gray-light);
+      min-height: 100vh;
+      overflow-x: hidden;
+      cursor: crosshair;
+    }
+
+    /* ===== BACKGROUND ===== */
+    #bg-layer {
+      position: fixed; inset: 0; z-index: 0;
+      transition: filter 0.4s ease;
+      background:
+        linear-gradient(rgba(7,6,15,0.58), rgba(7,6,15,0.58)),
+        url('IMG-20260323-WA0125.png') center/cover no-repeat;
+    }
+    #bg-layer.blurred { filter: blur(5px); }
+    #bg-layer::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px);
+      pointer-events: none;
+    }
+
+    /* =================================================
+       CRT BOOT SCREEN
+    ================================================= */
+    #crt-boot {
+      position: fixed; inset: 0; z-index: 9999;
+      background: #000;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      overflow: hidden; padding: 20px;
+    }
+    #crt-flash {
+      position: absolute; inset: 0; background: #fff; opacity: 0;
+      pointer-events: none;
+      animation: crtFlash 0.4s ease forwards;
+    }
+    @keyframes crtFlash {
+      0%{opacity:0} 15%{opacity:0.9} 45%{opacity:0.15} 70%{opacity:0.5} 100%{opacity:0}
+    }
+    #crt-scanline {
+      position: absolute; left:0; right:0; height:3px; top:50%;
+      background: linear-gradient(90deg, transparent, #00ff41 20%, #a855f7 50%, #00ff41 80%, transparent);
+      box-shadow: 0 0 18px #00ff41, 0 0 40px #a855f780;
+      animation: crtScan 1s 0.3s ease forwards; opacity:0;
+    }
+    @keyframes crtScan {
+      0%{opacity:1;transform:scaleY(1);top:50%}
+      30%{opacity:1;transform:scaleY(4)}
+      60%{opacity:0.8;transform:scaleY(1);top:50%}
+      100%{opacity:0;transform:scaleY(1);top:0}
+    }
+    #crt-boot::before {
+      content:''; position:absolute; inset:0; z-index:2;
+      background: radial-gradient(ellipse at center, transparent 52%, rgba(0,0,0,0.88) 100%);
+      pointer-events:none;
+    }
+    #crt-boot::after {
+      content:''; position:absolute; inset:0; z-index:2;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,65,0.03) 2px, rgba(0,255,65,0.03) 4px);
+      pointer-events:none;
+      animation: scanMove 0.09s linear infinite;
+    }
+    @keyframes scanMove{from{background-position:0 0}to{background-position:0 4px}}
+    #crt-content {
+      position:relative; z-index:3;
+      width:100%; max-width:min(560px,94vw);
+      opacity:0; animation:contentReveal 0.4s 1.1s ease forwards;
+    }
+    @keyframes contentReveal{from{opacity:0;filter:blur(5px)}to{opacity:1;filter:blur(0)}}
+    .crt-bios-header {
+      font-family:'VT323',monospace;
+      font-size:clamp(0.82rem,2.5vw,1rem);
+      color:#888; letter-spacing:2px;
+      border-bottom:1px solid #1a1a2a;
+      padding-bottom:8px; margin-bottom:14px;
+    }
+    .crt-bios-header span{color:var(--green)}
+    #hack-log {
+      font-family:'VT323',monospace;
+      font-size:clamp(0.85rem,2.6vw,1rem);
+      color:var(--green); width:100%;
+      height:clamp(190px,44vh,330px);
+      overflow:hidden; line-height:1.55;
+    }
+    #hack-log .line      {display:block;white-space:pre-wrap;word-break:break-all}
+    #hack-log .line.red  {color:#ff4444}
+    #hack-log .line.yellow{color:#ffcc00}
+    #hack-log .line.gray {color:#445}
+    #hack-log .line.purple{color:var(--purple-light)}
+    #hack-log .line.white{color:#ddd}
+    #hack-bar-wrap{margin-top:16px}
+    .hack-bar-label{
+      font-family:'VT323',monospace;
+      font-size:clamp(0.82rem,2.3vw,0.95rem);
+      color:var(--green); display:flex; justify-content:space-between;
+      margin-bottom:5px; letter-spacing:2px;
+    }
+    .hack-bar-outer{
+      padding:3px;
+      background:linear-gradient(135deg,var(--b1),var(--b2),var(--b3),var(--b2),var(--b1));
+      animation:bGlow 3s ease-in-out infinite;
+    }
+    @keyframes bGlow{0%,100%{box-shadow:0 0 6px #5a4a7a}50%{box-shadow:0 0 14px #a855f7}}
+    .hack-bar-track{width:100%;height:8px;background:#0a0a14}
+    .hack-bar-fill{
+      height:100%;width:0%;
+      background:linear-gradient(90deg,#00ff41,#a855f7);
+      box-shadow:0 0 10px #00ff41; transition:width 0.08s linear;
+    }
+    #hack-status{
+      font-family:'VT323',monospace;
+      font-size:clamp(0.82rem,2.3vw,0.95rem);
+      color:var(--green); letter-spacing:3px; margin-top:8px;
+      animation:blink 0.9s step-end infinite;
+    }
+    @keyframes blink{50%{opacity:0}}
+    #crt-boot.fade-out{animation:crtOff 0.65s ease forwards}
+    @keyframes crtOff{
+      0%{opacity:1;transform:scaleY(1)}
+      40%{opacity:1;transform:scaleY(0.04) scaleX(1.12);filter:brightness(4)}
+      100%{opacity:0;transform:scaleY(0)}
+    }
+
+    /* =================================================
+       MAIN PAGE
+    ================================================= */
+    #main-page{
+      position:relative; z-index:1;
+      width:100%; max-width:min(500px,96vw);
+      margin:0 auto;
+      padding:0 clamp(12px,4vw,22px) 80px;
+      display:none;
+    }
+
+    /* ===== TOP TITLE BAR ===== */
+    .db-topbar {
+      background: rgba(12,8,24,0.88);
+      padding: clamp(12px,3.5vw,18px) clamp(14px,4vw,20px);
+      margin-bottom: clamp(14px,4vw,20px);
+      position: relative;
+      border:2px solid transparent;
+      background-clip:padding-box;
+      text-align:center;
+    }
+    .db-topbar::before {
+      content:''; position:absolute; inset:-2px;
+      background:linear-gradient(135deg,var(--b1),var(--b2),var(--b3),var(--b2),var(--b1));
+      z-index:-1;
+      animation:borderAnim 5s ease-in-out infinite;
+    }
+    /* corner accents */
+    .db-topbar .c-tl2,.db-topbar .c-tr2,.db-topbar .c-bl2,.db-topbar .c-br2{
+      position:absolute; width:16px; height:16px;
+    }
+    .db-topbar .c-tl2{top:-2px;left:-2px;    border-top:2px solid #c084fc;border-left:2px solid #c084fc}
+    .db-topbar .c-tr2{top:-2px;right:-2px;   border-top:2px solid #c084fc;border-right:2px solid #c084fc}
+    .db-topbar .c-bl2{bottom:-2px;left:-2px;  border-bottom:2px solid #c084fc;border-left:2px solid #c084fc}
+    .db-topbar .c-br2{bottom:-2px;right:-2px; border-bottom:2px solid #c084fc;border-right:2px solid #c084fc}
+
+    .db-topbar-title {
+      font-family:'Special Elite',monospace;
+      font-size:clamp(1.1rem,4.5vw,1.7rem);
+      font-weight:bold; font-style:italic;
+      color:var(--purple-light);
+      letter-spacing:2px;
+      text-shadow: 0 0 18px rgba(168,85,247,0.5);
+    }
+
+    /* ===== WANTED + STATS ROW ===== */
+    .wanted-row {
+      display:grid; grid-template-columns:1fr 1fr;
+      gap:clamp(8px,2.5vw,14px);
+      margin-bottom:clamp(12px,3vw,18px);
+    }
+    .wanted-img-wrap img{width:100%;display:block;filter:sepia(15%) contrast(1.05)}
+    .wanted-img-wrap{
+      background:rgba(10,7,20,0.6);
+      padding:4px;
+      border:2px solid transparent;
+      background-clip:padding-box;
+      position:relative;
+    }
+    .wanted-img-wrap::before{
+      content:''; position:absolute; inset:-2px;
+      background:linear-gradient(135deg,var(--b1),var(--b2),var(--b3));
+      z-index:-1;
+    }
+
+    .wanted-stats {
+      display:flex; flex-direction:column; justify-content:center;
+      gap:clamp(8px,2vw,13px); padding:10px;
+      background:rgba(12,8,24,0.78);
+      border:2px solid transparent;
+      background-clip:padding-box;
+      position:relative;
+    }
+    .wanted-stats::before{
+      content:''; position:absolute; inset:-2px;
+      background:linear-gradient(135deg,var(--b1),var(--b2),var(--b3));
+      z-index:-1;
+    }
+    .stat-label{
+      font-family:'Share Tech Mono',monospace;
+      font-size:clamp(0.68rem,2.2vw,0.82rem);
+      color:var(--gray-light); line-height:1.6;
+      font-weight:700; letter-spacing:0.5px;
+    }
+
+    /* =================================================
+       EXPANDABLE TABLE BUTTONS — sniper card style
+    ================================================= */
+    .tables-section{
+      display:flex; flex-direction:column;
+      gap:clamp(10px,2.5vw,14px);
+    }
+    .table-row-double{
+      display:grid; grid-template-columns:1fr 1fr;
+      gap:clamp(10px,2.5vw,14px);
+    }
+
+    /* card-style button matching reference */
+    .tbl-btn {
+      width:100%;
+      font-family:'Share Tech Mono',monospace;
+      font-size:clamp(0.88rem,3vw,1.05rem);
+      font-weight:700;
+      letter-spacing:2px;
+      text-transform:uppercase;
+      color:var(--gray-light);
+      background:rgba(12,8,24,0.78);
+      border:none;
+      padding:clamp(14px,4vw,20px) clamp(16px,4vw,22px);
+      cursor:pointer; text-align:center;
+      transition:background 0.25s, box-shadow 0.25s;
+      position:relative;
+      backdrop-filter:blur(4px);
+      -webkit-tap-highlight-color: transparent;
+      /* outer gradient border */
+      border:2px solid transparent;
+      background-clip:padding-box;
+    }
+    /* gradient filled border */
+    .tbl-btn::before{
+      content:''; position:absolute; inset:-2px;
+      background:linear-gradient(135deg,var(--b1),var(--b2),var(--b3),var(--b2),var(--b1));
+      z-index:-1;
+      animation:borderAnim 5s ease-in-out infinite;
+    }
+    /* sniper corners TL */
+    .tbl-btn::after{
+      content:''; position:absolute;
+      top:-2px; left:-2px;
+      width:16px; height:16px;
+      border-top:2px solid #c084fc;
+      border-left:2px solid #c084fc;
+      pointer-events:none;
+    }
+    /* corner TR */
+    .tbl-btn .c-tr2{ position:absolute; top:-2px; right:-2px; width:16px; height:16px; border-top:2px solid #c084fc; border-right:2px solid #c084fc; pointer-events:none; }
+    /* corner BL */
+    .tbl-btn .c-bl2{ position:absolute; bottom:-2px; left:-2px; width:16px; height:16px; border-bottom:2px solid #c084fc; border-left:2px solid #c084fc; pointer-events:none; }
+    /* corner BR */
+    .tbl-btn .c-br2{ position:absolute; bottom:-2px; right:-2px; width:16px; height:16px; border-bottom:2px solid #c084fc; border-right:2px solid #c084fc; pointer-events:none; }
+
+    /* horizontal divider lines (like the card in reference) */
+    .tbl-btn .card-line-t{ position:absolute; left:16px; right:16px; top:-1px; height:1px; background:rgba(168,127,212,0.3); }
+    .tbl-btn .card-line-b{ position:absolute; left:16px; right:16px; bottom:-1px; height:1px; background:rgba(168,127,212,0.3); }
+
+    .tbl-btn:hover{
+      background:rgba(123,79,166,0.2);
+      box-shadow:0 0 20px rgba(123,79,166,0.35), inset 0 0 30px rgba(123,79,166,0.06);
+      color:#e8d8ff;
+    }
+    .tbl-btn:hover::before{ filter:brightness(1.5); }
+    .tbl-btn:active{ transform:scale(0.98); }
+
+    /* =================================================
+       MODAL OVERLAY + PANEL
+    ================================================= */
+    #modal-overlay {
+      display:none; position:fixed; inset:0; z-index:8000;
+      align-items:center; justify-content:center;
+      padding:20px;
+    }
+    #modal-overlay.active{ display:flex; }
+
+    /* panel */
+    #modal-panel {
+      position:relative; z-index:8001;
+      width:100%; max-width:min(480px,96vw);
+      max-height:85vh;
+      overflow:hidden;
+
+      /* double border: outer gradient, inner content */
+      background:rgba(8,6,18,0.97);
+      border:2px solid transparent;
+      background-clip:padding-box;
+
+      /* closed state */
+      transform:scaleY(0);
+      transform-origin:top center;
+      opacity:0;
+      transition:transform 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.25s ease;
+    }
+
+    /* outer gradient border */
+    #modal-panel::before{
+      content:''; position:absolute; inset:-3px;
+      background:linear-gradient(135deg,var(--b1),var(--b2),var(--b3),var(--b2),var(--b1));
+      z-index:-1; border-radius:3px;
+      animation:borderAnim 5s ease-in-out infinite;
+    }
+    @keyframes borderAnim{0%,100%{opacity:0.7;filter:brightness(1)}50%{opacity:1;filter:brightness(1.5)}}
+
+    /* sniper corner accents */
+    #modal-panel .c-tl,#modal-panel .c-tr,
+    #modal-panel .c-bl,#modal-panel .c-br{
+      position:absolute; width:18px; height:18px; z-index:2;
+    }
+    #modal-panel .c-tl{top:-3px;left:-3px;    border-top:3px solid #c084fc;border-left:3px solid #c084fc}
+    #modal-panel .c-tr{top:-3px;right:-3px;   border-top:3px solid #c084fc;border-right:3px solid #c084fc}
+    #modal-panel .c-bl{bottom:-3px;left:-3px;  border-bottom:3px solid #c084fc;border-left:3px solid #c084fc}
+    #modal-panel .c-br{bottom:-3px;right:-3px; border-bottom:3px solid #c084fc;border-right:3px solid #c084fc}
+
+    #modal-panel.open{
+      transform:scaleY(1);
+      opacity:1;
+    }
+
+    /* title bar inside panel */
+    #modal-titlebar{
+      display:flex; align-items:center; justify-content:space-between;
+      background:linear-gradient(90deg,#0c0a18,#160e28,#0c0a18);
+      padding:clamp(10px,3vw,14px) clamp(14px,4vw,18px);
+      border-bottom:2px solid transparent;
+      position:relative;
+    }
+    #modal-titlebar::after{
+      content:''; position:absolute; bottom:-2px; left:0; right:0; height:2px;
+      background:linear-gradient(90deg,transparent,var(--b2),transparent);
+    }
+    #modal-title{
+      font-family:'VT323',monospace;
+      font-size:clamp(1.2rem,4vw,1.6rem);
+      color:var(--purple-light); letter-spacing:3px; text-transform:uppercase;
+      flex:1; text-align:center;
+    }
+    /* close button */
+    #modal-close{
+      width:30px; height:30px;
+      background:rgba(255,40,40,0.15);
+      border:1px solid #ff4444;
+      color:#ff6666; font-size:1.2rem;
+      cursor:pointer; display:flex;
+      align-items:center; justify-content:center;
+      transition:all 0.2s; flex-shrink:0;
+      font-family:monospace;
+    }
+    #modal-close:hover{background:rgba(255,40,40,0.35);color:#fff}
+
+    /* content area */
+    #modal-body{
+      padding:clamp(14px,4vw,20px) clamp(16px,4vw,22px);
+      overflow-y:auto; max-height:calc(85vh - 80px);
+      font-family:'Share Tech Mono',monospace;
+      font-size:clamp(0.78rem,2.5vw,0.9rem);
+      font-weight:700;
+      color:var(--gray-light); line-height:1.9;
+    }
+
+    /* typewriter text container */
+    #modal-typed-text{
+      white-space:pre-wrap;
+      word-break:break-word;
+    }
+
+    /* cursor blink after typing */
+    #modal-cursor{
+      display:inline-block;
+      width:2px; height:1em;
+      background:var(--purple-light);
+      vertical-align:text-bottom;
+      animation:blink 0.8s step-end infinite;
+      margin-left:2px;
+    }
+
+    /* =================================================
+       GLITCH [unknown] effect
+    ================================================= */
+    .glitch-unknown{
+      font-family:'VT323',monospace;
+      font-size:1.3em;
+      color:#ff4444;
+      position:relative;
+      display:inline-block;
+      letter-spacing:2px;
+    }
+    .glitch-unknown::before,.glitch-unknown::after{
+      content:attr(data-text);
+      position:absolute; top:0; left:0;
+    }
+    .glitch-unknown::before{
+      color:#00ffff;
+      animation:gU1 1.5s infinite steps(1);
+      clip-path:polygon(0 20%,100% 20%,100% 45%,0 45%);
+    }
+    .glitch-unknown::after{
+      color:#ff00ff;
+      animation:gU2 1.5s infinite steps(1);
+      clip-path:polygon(0 55%,100% 55%,100% 80%,0 80%);
+    }
+    @keyframes gU1{
+      0%,70%,100%{transform:translate(0);opacity:0}
+      71%{transform:translate(-5px,2px) skewX(-10deg);opacity:1}
+      73%{transform:translate(5px,-2px) skewX(10deg);opacity:1}
+      75%{transform:translate(-3px,3px);opacity:1}
+      77%{transform:translate(0);opacity:0}
+      78%{transform:translate(-9px,1px);opacity:0.8}
+      80%{transform:translate(0);opacity:0}
+    }
+    @keyframes gU2{
+      0%,68%,100%{transform:translate(0);opacity:0}
+      69%{transform:translate(7px,-3px) skewX(12deg);opacity:0.9}
+      71%{transform:translate(-7px,3px) skewX(-12deg);opacity:0.9}
+      73%{transform:translate(4px,-1px);opacity:0.9}
+      75%{transform:translate(0);opacity:0}
+      79%{transform:translate(6px,2px);opacity:0.7}
+      81%{transform:translate(0);opacity:0}
+    }
+
+    /* =================================================
+       EXIT BUTTON — same sniper card style
+    ================================================= */
+    .exit-btn-wrap{
+      display:flex; justify-content:flex-start;
+      margin-top:clamp(14px,4vw,24px);
+    }
+    .exit-btn{
+      font-family:'Share Tech Mono',monospace;
+      font-size:clamp(0.88rem,3vw,1.05rem);
+      font-weight:700; letter-spacing:3px;
+      text-transform:uppercase;
+      color:var(--gray-light);
+      background:rgba(12,8,24,0.78);
+      border:2px solid transparent;
+      background-clip:padding-box;
+      padding:clamp(10px,3vw,14px) clamp(24px,7vw,40px);
+      cursor:pointer; text-align:center;
+      transition:all 0.25s;
+      text-decoration:none; display:inline-block;
+      position:relative;
+      backdrop-filter:blur(4px);
+    }
+    .exit-btn::before{
+      content:''; position:absolute; inset:-2px;
+      background:linear-gradient(135deg,#7a1010,#ff2222,#7a1010,#ff2222);
+      z-index:-1; border-radius:2px;
+      animation:btnBA 3s ease-in-out infinite;
+    }
+    @keyframes btnBA{0%,100%{opacity:0.55}50%{opacity:1;filter:brightness(1.6)}}
+    .exit-btn .b-tl,.exit-btn .b-tr,.exit-btn .b-bl,.exit-btn .b-br{
+      position:absolute; width:14px; height:14px; z-index:2;
+    }
+    .exit-btn .b-tl{top:-2px;left:-2px;    border-top:2px solid #ff7777; border-left:2px solid #ff7777;}
+    .exit-btn .b-tr{top:-2px;right:-2px;   border-top:2px solid #ff7777; border-right:2px solid #ff7777;}
+    .exit-btn .b-bl{bottom:-2px;left:-2px;  border-bottom:2px solid #ff7777; border-left:2px solid #ff7777;}
+    .exit-btn .b-br{bottom:-2px;right:-2px; border-bottom:2px solid #ff7777; border-right:2px solid #ff7777;}
+    .exit-btn:hover{
+      background:rgba(255,20,20,0.18);
+      color:#ff8888;
+      box-shadow:0 0 24px rgba(255,20,20,0.35);
+    }
+
+    /* =================================================
+       EXIT ANIMATION OVERLAY
+    ================================================= */
+    #exit-overlay{
+      display:none; position:fixed; inset:0; z-index:99999;
+      background:rgba(0,0,0,0.93);
+      flex-direction:column; align-items:center; justify-content:center;
+      gap:14px; padding:20px;
+    }
+    #exit-overlay.active{display:flex}
+    .win-outer{
+      width:100%; max-width:min(440px,96vw);
+      padding:3px;
+      background:linear-gradient(135deg,var(--b1),var(--b2),var(--b3),var(--b2),var(--b1));
+      border-radius:3px; animation:bGlow 3s ease-in-out infinite;
+    }
+    .win-inner{background:#040308}
+    .win-titlebar{
+      font-family:'VT323',monospace;
+      font-size:clamp(0.78rem,2.2vw,0.88rem);
+      color:#888; letter-spacing:2px; background:#0c0a18;
+      padding:5px 10px;
+      display:flex; justify-content:space-between; align-items:center;
+      border-bottom:1px solid #1a1228;
+    }
+    .win-titlebar .win-title{color:var(--purple-light)}
+    .win-dots span{display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:5px}
+    .dot-r{background:#ff4444}.dot-y{background:#ffcc00}.dot-g{background:#00cc44}
+    .exit-log-body{padding:10px 12px;height:clamp(110px,20vh,170px);overflow:hidden}
+    .exit-delete-log .del-line{
+      display:block;font-family:'VT323',monospace;
+      font-size:clamp(0.8rem,2.3vw,0.9rem);
+      color:#ff5555;line-height:1.4;
+    }
+    .exit-delete-log .del-line.ok{color:var(--green)}
+    .exit-main-body{
+      padding:clamp(14px,4vw,22px) clamp(18px,5vw,30px);
+      text-align:center;
+    }
+    .exit-msg{
+      font-family:'VT323',monospace;
+      font-size:clamp(1rem,3.5vw,1.3rem);
+      color:var(--gray-light);letter-spacing:2px;
+      margin-bottom:clamp(10px,3vw,16px);
+    }
+    .exit-bar-outer{
+      padding:3px;
+      background:linear-gradient(90deg,#7a1010,#ff2222,#7a1010);
+      animation:btnBA 2s ease-in-out infinite;
+    }
+    .exit-bar-track{width:100%;height:8px;background:#0a0a14}
+    .exit-bar-fill{
+      height:100%;width:0%;
+      background:linear-gradient(90deg,var(--danger),#ff8800);
+      box-shadow:0 0 8px var(--danger);transition:width 0.1s linear;
+    }
+    .exit-pct{
+      font-family:'VT323',monospace;
+      font-size:clamp(0.82rem,2.3vw,0.95rem);
+      color:var(--danger);margin-top:8px;letter-spacing:3px;
+    }
+
+    /* =================================================
+       SNIPER TOUCH
+    ================================================= */
+    .sniper-touch{
+      position:fixed;pointer-events:none;z-index:99990;
+      transform:translate(-50%,-50%);
+    }
+    .sniper-touch svg{animation:sF 0.7s ease forwards}
+    @keyframes sF{0%{opacity:1;transform:scale(0.5)}40%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.5)}}
+    .bullet-burst{
+      position:fixed;pointer-events:none;z-index:99989;border-radius:50%;
+      background:radial-gradient(circle,rgba(200,150,255,0.95) 0%,rgba(128,0,0,0.5) 50%,transparent 100%);
+      animation:bB 0.45s ease forwards;
+    }
+    @keyframes bB{0%{opacity:1;transform:translate(-50%,-50%) scale(0.1)}50%{opacity:0.9;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(2.2)}}
+    .bullet-line{
+      position:fixed;pointer-events:none;z-index:99988;height:2px;
+      background:linear-gradient(90deg,rgba(200,150,255,0.9),rgba(128,0,0,0.6),transparent);
+      transform-origin:left center;animation:bL 0.5s ease forwards;
+    }
+    @keyframes bL{0%{opacity:1}100%{opacity:0}}
+
+    /* =================================================
+       RESPONSIVE
+    ================================================= */
+    @media(max-width:359px){
+      .wanted-row{grid-template-columns:1fr}
+      .table-row-double{grid-template-columns:1fr}
+      .db-topbar-title{font-size:1.1rem}
+    }
+    @media(min-width:360px) and (max-width:413px){
+      #main-page{max-width:100%}
+    }
+    @media(min-width:414px) and (max-width:479px){
+      #main-page{max-width:420px}
+    }
+    @media(min-width:480px) and (max-width:599px){
+      #main-page{max-width:480px}
+    }
+    @media(min-width:600px) and (max-width:1023px){
+      #main-page{max-width:560px}
+      #crt-content{max-width:560px}
+      .db-topbar-title{font-size:1.6rem}
+    }
+    @media(min-width:1024px){
+      #main-page{max-width:640px}
+      #crt-content{max-width:640px}
+      .db-topbar-title{font-size:2rem}
+      #hack-log{height:48vh;font-size:1rem}
+    }
+    @media(min-width:1440px){
+      #main-page{max-width:720px}
+      #crt-content{max-width:680px}
+    }
+  </style>
+</head>
+<body>
+
+<div id="bg-layer"></div>
+
+<!-- =================================================
+     CRT BOOT SCREEN
+================================================= -->
+<div id="crt-boot">
+  <div id="crt-flash"></div>
+  <div id="crt-scanline"></div>
+  <div id="crt-content">
+    <div class="crt-bios-header">
+      BLACKPAW_OS v2.7 &nbsp;|&nbsp; <span>UNAUTHORIZED TERMINAL</span> &nbsp;|&nbsp; BOOT OK
+    </div>
+    <div id="hack-log"></div>
+    <div id="hack-bar-wrap">
+      <div class="hack-bar-label">
+        <span id="hack-label">PENETRATING DATABASE...</span>
+        <span id="hack-pct">0%</span>
+      </div>
+      <div class="hack-bar-outer">
+        <div class="hack-bar-track">
+          <div class="hack-bar-fill" id="hack-fill"></div>
+        </div>
+      </div>
+      <div id="hack-status">INITIALIZING...</div>
+    </div>
+  </div>
+</div>
+
+<!-- =================================================
+     MAIN PAGE
+================================================= -->
+<div id="main-page">
+
+  <!-- TOP TITLE BAR -->
+  <div class="db-topbar">
+    <div class="c-tl2"></div><div class="c-tr2"></div>
+    <div class="c-bl2"></div><div class="c-br2"></div>
+    <div class="db-topbar-title">Alonysky's The Dragon Database</div>
+  </div>
+
+  <!-- WANTED + STATS -->
+  <div class="wanted-row">
+    <div class="wanted-img-wrap">
+      <img src="1774202064289.png"
+           onerror="this.style.background='linear-gradient(135deg,#2d1b4e,#4a0000)';this.style.minHeight='200px';this.removeAttribute('src')"
+           alt="WANTED — AlonySky"/>
+    </div>
+    <div class="wanted-stats">
+      <div class="stat-label">Name: AlonySky</div>
+      <div class="stat-label">Species: Anthro Reptile Dragon</div>
+      <div class="stat-label">Height/Weight: 187 cm / 60 kg</div>
+      <div class="stat-label">Primary Color: Purple</div>
+    </div>
+  </div>
+
+  <!-- TABLE BUTTONS -->
+  <div class="tables-section">
+
+    <!-- Description — full width -->
+    <button class="tbl-btn" onclick="openModal('description')">
+      <div class="c-tr2"></div><div class="c-bl2"></div><div class="c-br2"></div>
+      <div class="card-line-t"></div><div class="card-line-b"></div>
+      Description
+    </button>
+
+    <!-- Abilities + Other — side by side -->
+    <div class="table-row-double">
+      <button class="tbl-btn" onclick="openModal('abilities')">
+        <div class="c-tr2"></div><div class="c-bl2"></div><div class="c-br2"></div>
+        <div class="card-line-t"></div><div class="card-line-b"></div>
+        Abilities
+      </button>
+      <button class="tbl-btn" onclick="openModal('other')">
+        <div class="c-tr2"></div><div class="c-bl2"></div><div class="c-br2"></div>
+        <div class="card-line-t"></div><div class="card-line-b"></div>
+        Other
+      </button>
+    </div>
+
+    <!-- Background — full width -->
+    <button class="tbl-btn" onclick="openModal('background')">
+      <div class="c-tr2"></div><div class="c-bl2"></div><div class="c-br2"></div>
+      <div class="card-line-t"></div><div class="card-line-b"></div>
+      Background
+    </button>
+
+    <!-- Exit -->
+    <div class="exit-btn-wrap">
+      <a class="exit-btn" id="exit-link" href="#">
+        <div class="b-tl"></div><div class="b-tr"></div>
+        <div class="b-bl"></div><div class="b-br"></div>
+        Finish it // End It
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<!-- =================================================
+     MODAL PANEL
+================================================= -->
+<div id="modal-overlay">
+  <div id="modal-panel">
+    <div class="c-tl"></div><div class="c-tr"></div>
+    <div class="c-bl"></div><div class="c-br"></div>
+
+    <div id="modal-titlebar">
+      <span id="modal-title">DESCRIPTION</span>
+      <button id="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modal-body">
+      <div id="modal-typed-text"></div>
+      <span id="modal-cursor"></span>
+    </div>
+  </div>
+</div>
+
+<!-- =================================================
+     EXIT OVERLAY
+================================================= -->
+<div id="exit-overlay">
+  <div class="win-outer">
+    <div class="win-inner">
+      <div class="win-titlebar">
+        <span class="win-title">trace_cleaner.exe — running</span>
+        <span class="win-dots">
+          <span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span>
+        </span>
+      </div>
+      <div class="exit-log-body">
+        <div class="exit-delete-log" id="exit-del-log"></div>
+      </div>
+    </div>
+  </div>
+  <div class="win-outer">
+    <div class="win-inner">
+      <div class="win-titlebar">
+        <span class="win-title">system_cleanup.exe</span>
+        <span class="win-dots">
+          <span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span>
+        </span>
+      </div>
+      <div class="exit-main-body">
+        <div class="exit-msg">Removing hacking traces<br>please wait...</div>
+        <div class="exit-bar-outer">
+          <div class="exit-bar-track">
+            <div class="exit-bar-fill" id="exit-fill"></div>
+          </div>
+        </div>
+        <div class="exit-pct" id="exit-pct">0%</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// =================================================
+// MODAL DATA
+// =================================================
+const modalData = {
+  description: {
+    title: 'DESCRIPTION',
+    html: false,
+    text: `I am a Reptile Dragon, but it holds more power than most would expect. My wings are unusual, they can shrink down with my magic, making it easier for me to move on the ground. I rarely use them to fly. Not because I can't, but because I've learned to face the world on my own two feet.`
+  },
+  abilities: {
+    title: 'ABILITIES',
+    html: false,
+    text: `1. I wield powerful magic with precise control\n\n2. I am trained as both a sniper and a close-range fighter\n\n3. My wings can expand and shrink at will`
+  },
+  other: {
+    title: 'OTHER',
+    html: true,
+    text: `There is something inside me I cannot fully understand.\nSomething that surfaces when I'm pushed too far.\nSomething that.....\n`,
+    glitch: `[unknown]`
+  },
+  background: {
+    title: 'BACKGROUND',
+    html: false,
+    text: `I was once a creature cast aside, avoided and rejected by settlements that saw me as nothing but a threat. I had no place, no purpose, and no one who truly saw me as something worth keeping.\n\nThat changed when the military found me.\nThey didn't see me—they saw potential.\n\nI was recruited, trained, and reshaped into something useful. A weapon. A sniper. A fighter. Someone who could be sent into the field without hesitation.\n\nI give my life for their missions, not because I believe in them… but because my life was never considered valuable to begin with.\n\nIf this is the only way I can exist with purpose, then so be it.`
+  }
+};
+
+// =================================================
+// MODAL OPEN / CLOSE
+// =================================================
+let typingTimer = null;
+let isClosing   = false;
+let currentKey  = null;
+
+function openModal(key) {
+  if (isClosing) return;
+  currentKey = key;
+
+  const data     = modalData[key];
+  const overlay  = document.getElementById('modal-overlay');
+  const panel    = document.getElementById('modal-panel');
+  const titleEl  = document.getElementById('modal-title');
+  const typedEl  = document.getElementById('modal-typed-text');
+  const cursorEl = document.getElementById('modal-cursor');
+
+  // reset
+  titleEl.textContent = data.title;
+  typedEl.innerHTML   = '';
+  cursorEl.style.display = 'inline-block';
+  if (typingTimer) clearInterval(typingTimer);
+
+  // blur background
+  document.getElementById('bg-layer').classList.add('blurred');
+
+  // show overlay
+  overlay.classList.add('active');
+
+  // expand panel
+  setTimeout(() => { panel.classList.add('open'); }, 20);
+
+  // wait for expand then typewrite
+  setTimeout(() => {
+    typeWrite(data, typedEl, cursorEl);
+  }, 380);
+}
+
+function typeWrite(data, el, cursor) {
+  // build full text (plain for typewriter)
+  const fullText = data.text;
+  let i = 0;
+  const speed = 18; // ms per char — fast
+
+  typingTimer = setInterval(() => {
+    if (i >= fullText.length) {
+      clearInterval(typingTimer);
+      typingTimer = null;
+
+      // if 'other', append glitch [unknown]
+      if (data.html && data.glitch) {
+        const span = document.createElement('span');
+        span.className = 'glitch-unknown';
+        span.setAttribute('data-text', data.glitch);
+        span.textContent = data.glitch;
+        el.appendChild(span);
+      }
+
+      // hide cursor after done
+      setTimeout(() => { cursor.style.display = 'none'; }, 800);
+      return;
+    }
+
+    // handle newlines
+    const ch = fullText[i];
+    if (ch === '\n') {
+      el.appendChild(document.createElement('br'));
+    } else {
+      const last = el.lastChild;
+      if (last && last.nodeType === 3) {
+        last.textContent += ch;
+      } else {
+        el.appendChild(document.createTextNode(ch));
+      }
+    }
+    i++;
+
+    // auto-scroll
+    const body = document.getElementById('modal-body');
+    body.scrollTop = body.scrollHeight;
+  }, speed);
+}
+
+function closeModal() {
+  if (isClosing) return;
+  isClosing = true;
+
+  const panel   = document.getElementById('modal-panel');
+  const overlay = document.getElementById('modal-overlay');
+  const typedEl = document.getElementById('modal-typed-text');
+  const cursorEl= document.getElementById('modal-cursor');
+
+  if (typingTimer) { clearInterval(typingTimer); typingTimer = null; }
+
+  // show cursor for reverse
+  cursorEl.style.display = 'inline-block';
+
+  // reverse typewriter: delete chars one by one
+  // collect all text content
+  let fullText = typedEl.textContent || typedEl.innerText || '';
+  // remove glitch span text duplicate
+  const glitchSpan = typedEl.querySelector('.glitch-unknown');
+  if (glitchSpan) {
+    fullText = fullText.replace(glitchSpan.textContent, '');
+    glitchSpan.remove();
+  }
+
+  // rebuild as plain text node for easy deletion
+  typedEl.innerHTML = '';
+  typedEl.appendChild(document.createTextNode(fullText));
+
+  const deleteSpeed = 10;
+  const dt = setInterval(() => {
+    const node = typedEl.lastChild;
+    if (!node || !node.textContent || node.textContent.length === 0) {
+      clearInterval(dt);
+      // collapse panel
+      panel.classList.remove('open');
+      setTimeout(() => {
+        overlay.classList.remove('active');
+        document.getElementById('bg-layer').classList.remove('blurred');
+        typedEl.innerHTML = '';
+        cursorEl.style.display = 'none';
+        isClosing = false;
+        currentKey = null;
+      }, 380);
+      return;
+    }
+    node.textContent = node.textContent.slice(0, -1);
+  }, deleteSpeed);
+}
+
+// =================================================
+// CRT BOOT + HACKING
+// =================================================
+const hackLines = [
+  {t:'white', tx:'BLACKPAW_OS 2.7 — BOOTING...'},
+  {t:'gray',  tx:'Initializing kernel modules...'},
+  {t:'',      tx:'> OK — kernel ready'},
+  {t:'gray',  tx:'Loading exploit framework...'},
+  {t:'',      tx:'> OK — framework loaded'},
+  {t:'red',   tx:'[!!] UNAUTHORIZED ACCESS DETECTED'},
+  {t:'gray',  tx:'Bypassing firewall layer 1...'},
+  {t:'',      tx:'> OK — firewall_l1.sys bypassed'},
+  {t:'gray',  tx:'Injecting SQL payload...'},
+  {t:'',      tx:'> OK — db_auth.php cracked'},
+  {t:'yellow',tx:'[WARN] intrusion_detection.exe active'},
+  {t:'red',   tx:'Killing process: intrusion_detection.exe'},
+  {t:'',      tx:'> OK — process killed [PID 3847]'},
+  {t:'gray',  tx:'Decrypting database tables...'},
+  {t:'purple',tx:'> Found: alonysky_profile.db'},
+  {t:'purple',tx:'> Found: alonysky_stats.db'},
+  {t:'purple',tx:'> Found: secret_records.db [LOCKED]'},
+  {t:'gray',  tx:'Brute forcing AES-256 encryption...'},
+  {t:'',      tx:'> OK — encryption cracked'},
+  {t:'yellow',tx:'[WARN] Secondary firewall triggered'},
+  {t:'red',   tx:'Deploying rootkit countermeasure...'},
+  {t:'',      tx:'> OK — rootkit deployed'},
+  {t:'gray',  tx:'Dumping profile data...'},
+  {t:'',      tx:'> OK — 4 records extracted'},
+  {t:'red',   tx:'[!!] SYSTEM ADMIN ALERTED'},
+  {t:'yellow',tx:'Spoofing IP to 103.xx.xx.xx...'},
+  {t:'',      tx:'> OK — IP spoofed'},
+  {t:'purple',tx:'> ACCESS GRANTED TO: Alonysky\'s Database'},
+  {t:'red',   tx:'[ SUNESS // BLACKPAW TEAMS ] — BREACH COMPLETE'},
+];
+const hackStages = ['BOOTING SYSTEM...','PENETRATING DATABASE...','BYPASSING FIREWALL...','DECRYPTING RECORDS...','EXTRACTING DATA...','ACCESS GRANTED'];
+
+const logEl  = document.getElementById('hack-log');
+const fillEl = document.getElementById('hack-fill');
+const pctEl  = document.getElementById('hack-pct');
+const statEl = document.getElementById('hack-status');
+const labEl  = document.getElementById('hack-label');
+let li=0, prog=0;
+
+function addHackLine(){
+  if(li>=hackLines.length) return;
+  const {t,tx}=hackLines[li++];
+  const s=document.createElement('span');
+  s.className='line'+(t?' '+t:'');
+  s.textContent=tx;
+  logEl.appendChild(s);
+  logEl.scrollTop=logEl.scrollHeight;
+}
+
+const tick=setInterval(()=>{
+  prog=Math.min(prog+Math.random()*2.2+0.5,100);
+  fillEl.style.width=prog+'%';
+  pctEl.textContent=Math.floor(prog)+'%';
+  labEl.textContent=hackStages[Math.min(Math.floor(prog/(100/hackStages.length)),hackStages.length-1)];
+  if(li<hackLines.length && Math.random()>0.3) addHackLine();
+  if(prog>=100){
+    clearInterval(tick);
+    statEl.textContent='BREACH COMPLETE // LOADING DATABASE...';
+    const drain=setInterval(()=>{
+      if(li<hackLines.length) addHackLine();
+      else{clearInterval(drain);launch();}
+    },55);
+  }
+},80);
+
+function launch(){
+  setTimeout(()=>{
+    document.getElementById('crt-boot').classList.add('fade-out');
+    document.getElementById('main-page').style.display='block';
+    setTimeout(()=>{document.getElementById('crt-boot').style.display='none';},750);
+  },500);
+}
+
+// =================================================
+// EXIT BUTTON
+// =================================================
+const fakeScripts=[
+  'rootkit_payload_v2.sh','db_injector.py','ip_spoofer.exe','firewall_bypass.dll',
+  'aes_cracker.bin','session_hijack.js','packet_sniffer.c','keylogger_stub.exe',
+  'exploit_kit.tar.gz','admin_override.php','trace_cleaner.bat','null_route.sh',
+  'sql_dumper.py','process_killer.exe','log_eraser.rb','memory_patch.ko',
+  'arp_spoof.py','credential_dump.exe','backdoor_installer.sh','zero_day.bin',
+  'network_tap.c','proxy_chain.conf','malware_loader.dll','ghost_session.js',
+  'heap_overflow.c','privesc_exploit.sh','kernel_mod.ko','cookie_stealer.js',
+];
+
+document.getElementById('exit-link').addEventListener('click',e=>{
+  e.preventDefault();
+  document.getElementById('exit-overlay').classList.add('active');
+  const delLog=document.getElementById('exit-del-log');
+  const ef=document.getElementById('exit-fill');
+  const ep=document.getElementById('exit-pct');
+  let ei=0,epp=0;
+
+  const di=setInterval(()=>{
+    if(ei>=fakeScripts.length){clearInterval(di);return}
+    const sc=fakeScripts[ei++];
+    const s=document.createElement('span');
+    s.className='del-line';s.textContent='deleted  '+sc;
+    delLog.appendChild(s);delLog.scrollTop=delLog.scrollHeight;
+    if(Math.random()>0.55){
+      const ok=document.createElement('span');
+      ok.className='del-line ok';ok.textContent='> trace removed successfully';
+      delLog.appendChild(ok);delLog.scrollTop=delLog.scrollHeight;
+    }
+  },110);
+
+  const et=setInterval(()=>{
+    epp=Math.min(epp+Math.random()*3+1,100);
+    ef.style.width=epp+'%';ep.textContent=Math.floor(epp)+'%';
+    if(epp>=100){
+      clearInterval(et);ep.textContent='100% — TRACES CLEARED';
+      setTimeout(()=>{window.location.href='https://virrnezz.github.io/alonysky-stuff/alonysky-portfolio.html';},800);
+    }
+  },80);
+});
+
+// =================================================
+// SNIPER TOUCH
+// =================================================
+function spawnSniper(x,y){
+  const r=document.createElement('div');
+  r.className='sniper-touch';
+  r.style.left=x+'px';r.style.top=y+'px';r.style.width='60px';r.style.height='60px';
+  r.innerHTML=`<svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+    <circle cx="30" cy="30" r="27" stroke="#a855f7" stroke-width="1.5" opacity="0.9"/>
+    <circle cx="30" cy="30" r="14" stroke="#800000" stroke-width="1" opacity="0.8"/>
+    <circle cx="30" cy="30" r="2.5" fill="#c084fc"/>
+    <line x1="30" y1="2"  x2="30" y2="16" stroke="#a855f7" stroke-width="1.5"/>
+    <line x1="30" y1="44" x2="30" y2="58" stroke="#a855f7" stroke-width="1.5"/>
+    <line x1="2"  y1="30" x2="16" y2="30" stroke="#a855f7" stroke-width="1.5"/>
+    <line x1="44" y1="30" x2="58" y2="30" stroke="#a855f7" stroke-width="1.5"/>
+    <line x1="30" y1="17" x2="30" y2="22" stroke="#800000" stroke-width="1"/>
+    <line x1="30" y1="38" x2="30" y2="43" stroke="#800000" stroke-width="1"/>
+    <line x1="17" y1="30" x2="22" y2="30" stroke="#800000" stroke-width="1"/>
+    <line x1="38" y1="30" x2="43" y2="30" stroke="#800000" stroke-width="1"/>
+  </svg>`;
+  document.body.appendChild(r);
+
+  const b=document.createElement('div');
+  b.className='bullet-burst';b.style.left=x+'px';b.style.top=y+'px';
+  b.style.width='40px';b.style.height='40px';
+  document.body.appendChild(b);
+
+  [45,135,225,315].forEach(ang=>{
+    const ln=document.createElement('div');
+    ln.className='bullet-line';
+    ln.style.left=x+'px';ln.style.top=y+'px';
+    ln.style.width=(55+Math.random()*45)+'px';
+    ln.style.transform=`rotate(${ang}deg)`;
+    document.body.appendChild(ln);
+    setTimeout(()=>ln.remove(),520);
+  });
+
+  setTimeout(()=>r.remove(),750);
+  setTimeout(()=>b.remove(),480);
+}
+
+document.addEventListener('touchstart',e=>{
+  spawnSniper(e.touches[0].clientX,e.touches[0].clientY);
+},{passive:true});
+document.addEventListener('click',e=>spawnSniper(e.clientX,e.clientY));
+</script>
+</body>
+</html>
